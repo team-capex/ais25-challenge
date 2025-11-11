@@ -1,0 +1,3 @@
+The provided Python scripts for the final tests in Stage 1 will be made available here soon.
+
+Please make sure your model is compatible with the Atomic Simulation Environment (ASE) by implementing an ASE Calculator class (see [ASE documentation](https://ase-lib.org/ase/calculators/calculators.html#module-ase.calculators)). The test scripts will rely on this interface to evaluate energies and forces with your model - these two properties are the only required outputs from your model for the tests. Note that your model should support both periodic and non-periodic boundary conditions.
