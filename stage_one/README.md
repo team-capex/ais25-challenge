@@ -52,7 +52,7 @@ Following the given tests, each team will be ranked according to a niching proto
 ## Metrics
 For reference, we define energy and force root mean squared error (RMSE) functions and root mean squared deviation (RMSD) of atomic positions.
 
-In the following, $B$ is the number of test samples in the subtest, while $N_b$, $E_b$ are the number of atoms and the energy of sample $b \in \{1, ... ,B\}$. Furthermore, force component $i \in \{x, y, z\}$ of atom $n \in \{1, ..., N_b\}$ of sample $b$ is written as $F_{b,ni}$. Likewise, $R_{b,ni}$ is position component $i$ of atom $n$ of sample $b$.
+In the following, $B$ is the number of test samples in the subtest, while $N_b$, $E_b$ are the number of atoms and the energy of sample $`b \in \{1, ... ,B\}`$. Furthermore, force component $`i \in \{x, y, z\}`$ of atom $`n \in \{1, ..., N_b\}`$ of sample $b$ is written as $F_{b,ni}$. Likewise, $R_{b,ni}$ is position component $i$ of atom $n$ of sample $b$.
 
 ```math
 \begin{aligned}
