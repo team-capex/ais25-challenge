@@ -23,26 +23,26 @@ Predicted labels are denoted with a hat, e.g. $\hat{E}$ for predicted energy, wh
 Two identical, uncharged nanoparticles placed far apart (50 Å) should not interact with each other.
 The interatomic forces within each nanoparticle should be identical (within numerical precision) to an isolated nanoparticle.
 Likewise, the total energy of the two-particle system should be twice the energy of an isolated nanoparticle.
-In the following, $\hat{E}_\mathrm{NP, \, isolated}$ and $\hat{F}_\mathrm{NP, \, isolated}$ are the energy and forces of an isolated nanoparticle, $\hat{F}_\mathrm{NP}$ are the forces within a single nanoparticle in the two-particle system that has total energy $\hat{E}_\mathrm{NP+NP}$.
-    1. $\mathcal{L} = \max(\mathrm{RMSE_F}(\hat{F}_\mathrm{NP}, \hat{F}_\mathrm{NP, \, isolated}), 10^{-4} \ \mathrm{eV/Å})$
-    2. $\mathcal{L} = \max(\mathrm{RMSE_E}(\hat{E}_\mathrm{NP+NP}, 2 \hat{E}_\mathrm{NP, \, isolated}), 10^{-4} \ \mathrm{eV/atom})$
+In the following, $`\hat{E}_\mathrm{NP, \, isolated}`$ and $`\hat{F}_\mathrm{NP, \, isolated}`$ are the energy and forces of an isolated nanoparticle, $`\hat{F}_\mathrm{NP}`$ are the forces within a single nanoparticle in the two-particle system that has total energy $`\hat{E}_\mathrm{NP+NP}`$.
+    1. $`\mathcal{L} = \max(\mathrm{RMSE_F}(\hat{F}_\mathrm{NP}, \hat{F}_\mathrm{NP, \, isolated}), 10^{-4} \ \mathrm{eV/Å})`$
+    2. $`\mathcal{L} = \max(\mathrm{RMSE_E}(\hat{E}_\mathrm{NP+NP}, 2 \hat{E}_\mathrm{NP, \, isolated}), 10^{-4} \ \mathrm{eV/atom})`$
 
 2. *Geometry optimization.*
 Predict the energy difference between different relaxed nanoparticle polymorphs. Starting from two different initial polymorphs A and B, relax the structures to A’ and B’. Then compare the energy and atomic position difference to the reference DFT calculation that found relaxed structures A’’ and B’’.
-    1. $\mathcal{L} = \mathrm{RMSE_E}(\hat{E}_\mathrm{B'} - \hat{E}_\mathrm{A'}, E_\mathrm{B''} - E_\mathrm{A''})$
-    2. $\mathcal{L} = \mathrm{RMSD}(\hat{R}_\mathrm{A'}, R_\mathrm{A''})$
-    3. $\mathcal{L} = \mathrm{RMSD}(\hat{R}_\mathrm{B'}, R_\mathrm{B''})$
+    1. $`\mathcal{L} = \mathrm{RMSE_E}(\hat{E}_\mathrm{B'} - \hat{E}_\mathrm{A'}, E_\mathrm{B''} - E_\mathrm{A''})`$
+    2. $`\mathcal{L} = \mathrm{RMSD}(\hat{R}_\mathrm{A'}, R_\mathrm{A''})`$
+    3. $`\mathcal{L} = \mathrm{RMSD}(\hat{R}_\mathrm{B'}, R_\mathrm{B''})`$
 
 3. *Nudged elastic band (NEB) between nanoparticle polymorphs.* Predict the reaction energy, activation energy, and atomic positions of the initial, final and transition states along the NEB path between two nanoparticle polymorphs *initial* and *final*.
-    1. $\mathcal{L} = \mathrm{RMSE_E}(\hat{E}_\mathrm{final} - \hat{E}_\mathrm{initial}, E_\mathrm{final} - E_\mathrm{initial})$
-    2. $\mathcal{L} = \mathrm{RMSE_E}(\hat{E}_\mathrm{TS} - \hat{E}_\mathrm{initial}, E_\mathrm{TS} - E_\mathrm{initial})$
-    3. $\mathcal{L} = \mathrm{RMSD}(\hat{R}_\mathrm{initial}, R_\mathrm{initial})$
-    4. $\mathcal{L} = \mathrm{RMSD}(\hat{R}_\mathrm{final}, R_\mathrm{final})$
-    5. $\mathcal{L} = \mathrm{RMSD}(\hat{R}_\mathrm{TS}, R_\mathrm{TS})$
+    1. $`\mathcal{L} = \mathrm{RMSE_E}(\hat{E}_\mathrm{final} - \hat{E}_\mathrm{initial}, E_\mathrm{final} - E_\mathrm{initial})`$
+    2. $`\mathcal{L} = \mathrm{RMSE_E}(\hat{E}_\mathrm{TS} - \hat{E}_\mathrm{initial}, E_\mathrm{TS} - E_\mathrm{initial})`$
+    3. $`\mathcal{L} = \mathrm{RMSD}(\hat{R}_\mathrm{initial}, R_\mathrm{initial})`$
+    4. $`\mathcal{L} = \mathrm{RMSD}(\hat{R}_\mathrm{final}, R_\mathrm{final})`$
+    5. $`\mathcal{L} = \mathrm{RMSD}(\hat{R}_\mathrm{TS}, R_\mathrm{TS})`$
 
 4. *Extrapolation to larger nanoparticles.* Predict the energy and forces of larger nanoparticles up to 10 nm in diameter that share the local motifs of the provided training set.
-    1. $\mathcal{L} = \mathrm{RMSE_E}(\hat{E}, E)$
-    2. $\mathcal{L} = \mathrm{RMSE_F}(\hat{F}, F)$
+    1. $`\mathcal{L} = \mathrm{RMSE_E}(\hat{E}, E)`$
+    2. $`\mathcal{L} = \mathrm{RMSE_F}(\hat{F}, F)`$
 
 All relevant structures will be provided in the extended XYZ format. Each task is accompanied by a Python script (will be provided soon) that runs the test and saves the outputs in the expected format. These scripts rely on the Atomic Simulation Environment ([ASE](https://ase-lib.org/))  Python library. To use the scripts, the ML model should interface with ASE through an [ASE Calculator class](https://ase-lib.org/ase/calculators/calculators.html#module-ase.calculators)). For comparable results to the reference data, this might be especially important for tasks 2 and 3 that use specific optimization routines. Note that only energy and force evaluation is required to perform these tasks.
 
@@ -54,7 +54,7 @@ For reference, we define energy and force root mean squared error (RMSE) functio
 
 In the following, $B$ is the number of test samples in the subtest, while $N_b$, $E_b$ are the number of atoms and the energy of sample $b \in \{1, ... ,B\}$. Furthermore, force component $i \in \{x, y, z\}$ of atom $n \in \{1, ..., N_b\}$ of sample $b$ is written as $F_{b,ni}$. Likewise, $R_{b,ni}$ is position component $i$ of atom $n$ of sample $b$.
 
-$$
+```math
 \begin{aligned}
     \mathrm{RMSE_E}(\hat{E}, E) &= \sqrt{\frac{1}{B} \sum_{b=1}^{B} \left( \frac{\hat{E}_b - E_b}{N_b} \right)^2 } \\
 
@@ -62,6 +62,6 @@ $$
     
     \mathrm{RMSD}(\hat{R}, R) &= \sqrt{\frac{1}{B} \sum_{b=1}^{B} \frac{1}{3N_b} \sum_{n=1}^{N_b} \sum_{i \in \{x,y,z\}} \left( \hat{R}_{b,ni} - R_{b,ni} \right)^2 }
 \end{aligned}
-$$
+```
 
 Note that $E,F,R$ are the reference labels and $\hat{E}, \hat{F}, \hat{R}$ are the predicted labels.
