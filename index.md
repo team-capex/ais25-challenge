@@ -6,7 +6,7 @@ At the launch of the challenge (November 4th, 11:00 am (CET)), a training set of
 
 ## Stage 1
 
-To enter Stage 1 of the competition (details and scoring conditions will be provided), participating teams must submit a hash of their final model to data-capex@dtu.dk no later than December 12th at, noon, 12:00 (CET). On December 15th at noon, 12:00 (CET), participating teams will receive a complex NP test set and must submit their reply to data-capex@dtu.dk within 24:00 hours.
+To enter Stage 1 of the competition, participating teams must submit a hash of their final model to data-capex@dtu.dk no later than December 12th at, noon, 12:00 (CET). On December 15th at noon, 12:00 (CET), participating teams will receive a complex NP test set and must submit their reply to data-capex@dtu.dk within 24:00 hours. Detailed instructions and scoring conditions for stage 1 are available [here](https://github.com/team-capex/ais25-challenge/tree/main/stage_one).
 
 ## Stage 2
 
