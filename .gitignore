@@ -1,0 +1,5 @@
+# Ignore generated files and folders when running run_tests.py
+stage_one/scripts/neb/
+stage_one/scripts/relax/
+run_tests.py.*
+stage_one/data/results.npz
