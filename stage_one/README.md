@@ -5,7 +5,7 @@ This dataset can be used to fine-tune existing machine learning or foundation mo
 
 At the end of Stage 1 of the competition, each team must
 1. Submit a hash of their final model in an e-mail to data-capex@dtu.dk no later than December 12th, 2025, at noon, 12:00 (CET). This ensures that the test results can later be reproduced on the exact same model if necessary.
-2. From the same e-mail address, submit the output files from the tests described below in an e-mail to data-capex@dtu.dk no later than December 16th, 2025, at noon, 12:00 (CET). Please use the provided Python scripts to generate the output files in the expected format.
+2. From the same e-mail address, submit the output files from the tests described below in an e-mail to data-capex@dtu.dk no later than December 16th, 2025, at noon, 12:00 (CET). Please use the provided Python script to generate the output file in the expected format. See the [README](./scripts/README.md).
 
 The tasks will be released on December 15, 2025, at noon, 12:00 (CET) and need to be completed within the following 24 hours. The time limit eliminates the possibility to cheat by using DFT directly. The tasks should be straightforward to complete with the provided scripts (see more below).
 
