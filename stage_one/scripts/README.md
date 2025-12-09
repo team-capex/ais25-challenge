@@ -21,8 +21,8 @@ Test: relaxation
 Test: neb
   reaction_energy: 0.043661 eV
   activation_energy: 0.033837 eV
-  rmsd_ts: 0.040639 Å
   rmsd_ends: 0.040498 Å
+  rmsd_ts: 0.040639 Å
 Test: single_point
   energy: 0.430836 eV/atom
   force: 0.069341 eV/Å
