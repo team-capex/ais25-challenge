@@ -1,19 +1,19 @@
-# Instructions for Stage 1 - New Deadline: January 12th
+# Instructions for Stage 1 - New Deadline: January 12th, 2026
 
 A training set of 1000 Au nanoparticles (NP) and low Miller-index surfaces are available [here](https://doi.org/10.11583/DTU.30480380).
 This dataset can be used to fine-tune existing machine learning or foundation models to enable fast prediction of NP properties, such as energy and forces, with DFT-level accuracy (VASP, PBE, D3).
 
 At the end of Stage 1 of the competition, each team must
-1. Submit a hash of their final model in an e-mail to data-capex@dtu.dk no later than **January 12th, 2025, at noon, 12:00 (CET)**. This ensures that the test results can later be reproduced on the exact same model if necessary. Please use a SHA256 hash of the saved model file.
+1. Submit a hash of their final model in an e-mail to data-capex@dtu.dk no later than **January 12th, 2026, at noon, 12:00 (CET)**. This ensures that the test results can later be reproduced on the exact same model if necessary. Please use a SHA256 hash of the saved model file.
 ```bash
 $ sha256sum model.pt
 ```
-2. From the same e-mail address, submit the output file `data/results.npz` from the tests described below in an e-mail to data-capex@dtu.dk no later than **Januray 15th, 2025, at noon, 12:00 (CET)**. Please use the provided Python script to generate the output file in the expected format. See the [README](./scripts/README.md).
+2. From the same e-mail address, submit the output file `data/results.npz` from the tests described below in an e-mail to data-capex@dtu.dk no later than **Januray 15th, 2026, at noon, 12:00 (CET)**. Please use the provided Python script to generate the output file in the expected format. See the [README](./scripts/README.md).
 ```bash
 $ python run_tests.py ../data/test.traj
 ```
 
-The tasks will be released on January 14, 2025, at noon, 12:00 (CET), i.e. pushed to this GitHub repository, and need to be completed within the following 24 hours. The time limit eliminates the possibility to cheat by using DFT directly. The tasks should be straightforward to complete with the provided scripts (see more below).
+The tasks will be released on January 14, 2026, at noon, 12:00 (CET), i.e. pushed to this GitHub repository, and need to be completed within the following 24 hours. The time limit eliminates the possibility to cheat by using DFT directly. The tasks should be straightforward to complete with the provided scripts (see more below).
 
 After the submission deadline, the three best teams will be crowned (see [scoring system](#scoringranking-models) below) and get to move on to Stage 2 of the competition.
 
