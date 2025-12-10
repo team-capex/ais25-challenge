@@ -1,1 +1,1 @@
-# AIS25 AI4Materials NP Challenge
+# AIS25 AI4Materials Nanoparticle (NP) Challenge
