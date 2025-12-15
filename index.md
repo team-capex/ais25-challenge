@@ -10,6 +10,8 @@ At the launch of the challenge (November 4th, 2025, 11:00 am (CET)), a training 
 
 To enter Stage 1 of the competition, participating teams must submit a hash of their final model to data-capex@dtu.dk no later than **January 12th, 2026, at noon, 12:00 (CET)**. On **Januray 14th, 2026, at noon, 12:00 (CET)**, participating teams will receive a complex NP test set and must submit their reply to data-capex@dtu.dk within 24:00 hours. Detailed instructions and scoring conditions for stage 1 are available [here](https://github.com/team-capex/ais25-challenge/tree/main/stage_one).
 
+Names and test scores will only be made public in agreement with participants.
+
 ## Stage 2
 
 The top three teams* following Stage 1 will be announced on February 6th, 2026, and qualify for Stage 2, where they will be onboarded on the Danish Center for AI Innovation (DCAI) NVIDIA Superpod Gefion for training/fine-tuning of their model on a new >12.000.000 structure ab initio solid-liquid dataset (VASP, PBE D3) with solvated nanoparticles, Pt, Au, and Cu surfaces, as well as cat- and anions. During the competition, the teams will have access to the dataset before it is publicly released after the competition.
