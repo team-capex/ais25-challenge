@@ -2,7 +2,8 @@ from argparse import ArgumentParser
 from dataclasses import dataclass
 
 import numpy as np
-from utilities import rotation_matrix_from_points
+from losses import energy_rmse, force_rmse
+from positions import rmsd, wrap_positions
 
 
 @dataclass
@@ -89,109 +90,6 @@ def results_from_npz(path_model: str, path_ref: str) -> Results:
     results_model.close()
     results_ref.close()
     return res
-
-
-def energy_rmse(
-    predicted: np.ndarray, reference: np.ndarray, natoms: np.ndarray | None
-) -> float:
-    """Compute RMSE between predicted and reference energies."""
-    diff = predicted - reference
-    if natoms is not None:
-        diff /= natoms
-    return np.sqrt(np.mean(diff**2))
-
-
-def force_rmse(predicted: np.ndarray, reference: np.ndarray) -> float:
-    """Compute RMSE between predicted and reference forces."""
-    return np.sqrt(
-        np.mean(np.nanmean((predicted - reference) ** 2, axis=(1, 2)))
-    )
-
-
-def rmsd(
-    predicted: np.ndarray,
-    reference: np.ndarray,
-    cells: np.ndarray,
-    pbcs: np.ndarray,
-    fixed: np.ndarray,
-) -> float:
-    """Compute RMSD between predicted and reference positions using the
-    minimum image convention.
-    """
-    # Center structures
-    pred_shift = np.nanmean(predicted, axis=1, keepdims=True)
-    predicted = predicted - ~fixed[:, None, None] * pred_shift  # (B, N, 3)
-
-    ref_shift = np.nanmean(reference, axis=1, keepdims=True)
-    reference = reference - ~fixed[:, None, None] * ref_shift  # (B, N, 3)
-
-    # Rotate structures. Set padded NaNs to zero for rotation calculation.
-    # Atoms at the origin will not affect rotation.
-    pred_zeroed = np.where(np.isnan(predicted), 0.0, predicted)  # (B, N, 3)
-    ref_zeroed = np.where(np.isnan(reference), 0.0, reference)  # (B, N, 3)
-    rot_mats = rotation_matrix_from_points(
-        pred_zeroed, ref_zeroed
-    )  # (B, 3, 3)
-
-    # Don't rotate systems with fixed atoms or periodic boundary conditions
-    rot_mats = np.where(
-        (fixed | pbcs.any(axis=1))[:, None, None], np.eye(3), rot_mats
-    )  # (B, 3, 3)
-    pred_zeroed = np.einsum("bni, bji -> bnj", pred_zeroed, rot_mats)
-    predicted = np.where(np.isnan(predicted), np.nan, pred_zeroed)
-
-    # Generate all 3x3x3 = 27 shifts to neighboring cells
-    unit_shifts = np.tile(
-        [
-            (i, j, k)
-            for i in (-1, 0, 1)
-            for j in (-1, 0, 1)
-            for k in (-1, 0, 1)
-        ],
-        (predicted.shape[0], 1, 1),
-    )  # (B, 27, 3)
-    unit_shifts *= pbcs[:, np.newaxis, :]
-    cell_shifts = np.einsum("bsk,bkj->bsj", unit_shifts, cells)
-
-    # Find closest periodic image of each atom in predicted to reference
-    expanded = (
-        predicted[:, :, np.newaxis, :] + cell_shifts[:, np.newaxis, :, :]
-    )  # (B, N, 27, 3)
-    all_dists = np.linalg.norm(
-        expanded - reference[:, :, np.newaxis, :], axis=-1
-    )  # (B, N, 27)
-    closest_pred = np.take_along_axis(
-        expanded,
-        np.argmin(all_dists, axis=-1)[:, :, np.newaxis, np.newaxis],
-        axis=2,
-    ).squeeze(2)  # (B, N, 3)
-    return force_rmse(closest_pred, reference)
-
-
-def wrap_positions(
-    positions: np.ndarray, cell: np.ndarray, pbc: np.ndarray
-) -> np.ndarray:
-    """Wrap positions back to the unit cell."""
-    # Convert cartesian to cell coordinates.
-    fractional = np.swapaxes(
-        np.linalg.solve(
-            np.swapaxes(cell, -1, -2), np.swapaxes(positions, -1, -2)
-        ),
-        -1,
-        -2,
-    )  # (B, N, 3)
-
-    # Floor the result to get the unit shifts.
-    unit_shifts = np.floor(fractional)
-
-    # Only wrap periodic dimensions.
-    unit_shifts *= np.asarray(pbc[:, None, :], dtype=bool)
-
-    # Move atoms a whole number of unit cell vectors to map them back to the
-    # unit cell.
-    cell_shifts = unit_shifts @ cell
-    pos_wrapped = positions - cell_shifts
-    return pos_wrapped
 
 
 def get_loss_locality(res: Results, tol: float = 1e-4) -> dict[str, float]:
