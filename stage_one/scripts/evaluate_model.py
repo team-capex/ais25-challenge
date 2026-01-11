@@ -2,6 +2,7 @@ from argparse import ArgumentParser
 from dataclasses import dataclass
 
 import numpy as np
+from utilities import rotation_matrix_from_points
 
 
 @dataclass
@@ -11,12 +12,15 @@ class Results:
     model_energies: np.ndarray  # (B,)
     model_forces: np.ndarray  # (B, N, 3)
     model_positions: np.ndarray  # (B, N, 3)
+    model_bulk_energy: np.ndarray  # ()
     ref_energies: np.ndarray  # (B,)
     ref_forces: np.ndarray  # (B, N, 3)
     ref_positions: np.ndarray  # (B, N, 3)
+    ref_bulk_energy: np.ndarray  # ()
     natoms: np.ndarray  # (B,)
     cells: np.ndarray  # (B, 3, 3)
     pbcs: np.ndarray  # (B, 3)
+    fixed: np.ndarray  # (B,)
 
     def __getitem__(self, key) -> "Results":
         if isinstance(key, int):
@@ -27,12 +31,15 @@ class Results:
             model_energies=self.model_energies[key],
             model_forces=self.model_forces[key],
             model_positions=self.model_positions[key],
+            model_bulk_energy=self.model_bulk_energy,
             ref_energies=self.ref_energies[key],
             ref_forces=self.ref_forces[key],
             ref_positions=self.ref_positions[key],
+            ref_bulk_energy=self.ref_bulk_energy,
             natoms=self.natoms[key],
             cells=self.cells[key],
             pbcs=self.pbcs[key],
+            fixed=self.fixed[key],
         )
 
 
@@ -47,8 +54,10 @@ def results_from_npz(path_model: str, path_ref: str) -> Results:
     sorted_indices = np.lexsort(
         (results_model["image_indices"], results_model["test_indices"])
     )
+    keys = results_model.files.copy()
+    keys.remove("bulk_energy")  # Scalar, no need to sort
     results_model_sorted = {
-        key: results_model[key][sorted_indices] for key in results_model.files
+        key: results_model[key][sorted_indices] for key in keys
     }
 
     # Same image ordering in reference and model results
@@ -67,12 +76,15 @@ def results_from_npz(path_model: str, path_ref: str) -> Results:
         model_energies=results_model_sorted["energies"],
         model_forces=results_model_sorted["forces"],
         model_positions=results_model_sorted["positions"],
+        model_bulk_energy=results_model["bulk_energy"],
         ref_energies=results_ref["energies"],
         ref_forces=results_ref["forces"],
         ref_positions=results_ref["positions"],
+        ref_bulk_energy=results_ref["bulk_energy"],
         natoms=natoms,
         cells=results_model_sorted["cells"],
         pbcs=results_model_sorted["pbcs"],
+        fixed=results_ref["fixed"],
     )
     results_model.close()
     results_ref.close()
@@ -101,18 +113,32 @@ def rmsd(
     reference: np.ndarray,
     cells: np.ndarray,
     pbcs: np.ndarray,
+    fixed: np.ndarray,
 ) -> float:
     """Compute RMSD between predicted and reference positions using the
-    minimum image convention. Note that rotations are not accounted for.
+    minimum image convention.
     """
-    # Center non-periodic dimensions
+    # Center structures
     pred_shift = np.nanmean(predicted, axis=1, keepdims=True)
-    pred_shift *= ~pbcs[:, np.newaxis, :]
-    predicted = predicted - pred_shift  # (B, N, 3)
+    predicted = predicted - ~fixed[:, None, None] * pred_shift  # (B, N, 3)
 
     ref_shift = np.nanmean(reference, axis=1, keepdims=True)
-    ref_shift *= ~pbcs[:, np.newaxis, :]
-    reference = reference - ref_shift  # (B, N, 3)
+    reference = reference - ~fixed[:, None, None] * ref_shift  # (B, N, 3)
+
+    # Rotate structures. Set padded NaNs to zero for rotation calculation.
+    # Atoms at the origin will not affect rotation.
+    pred_zeroed = np.where(np.isnan(predicted), 0.0, predicted)  # (B, N, 3)
+    ref_zeroed = np.where(np.isnan(reference), 0.0, reference)  # (B, N, 3)
+    rot_mats = rotation_matrix_from_points(
+        pred_zeroed, ref_zeroed
+    )  # (B, 3, 3)
+
+    # Don't rotate systems with fixed atoms or periodic boundary conditions
+    rot_mats = np.where(
+        (fixed | pbcs.any(axis=1))[:, None, None], np.eye(3), rot_mats
+    )  # (B, 3, 3)
+    pred_zeroed = np.einsum("bni, bji -> bnj", pred_zeroed, rot_mats)
+    predicted = np.where(np.isnan(predicted), np.nan, pred_zeroed)
 
     # Generate all 3x3x3 = 27 shifts to neighboring cells
     unit_shifts = np.tile(
@@ -187,42 +213,48 @@ def get_loss_locality(res: Results, tol: float = 1e-4) -> dict[str, float]:
 
 def get_loss_relax(res: Results) -> dict[str, float]:
     """Get loss in test 2: geometry relaxation"""
-    assert np.all(res.natoms[::2] == res.natoms[1::2])
-    natoms = res.natoms[::2]
+    res1 = res[::2]
+    res2 = res[1::2]
+    assert np.all(res1.natoms == res2.natoms)
 
     # Energy differences between paired polymorphs. Assume pairs are ordered
     # sequentially.
-    model_energy_diff = res.model_energies[1::2] - res.model_energies[::2]
-    ref_energy_diff = res.ref_energies[1::2] - res.ref_energies[::2]
-    energy_loss = energy_rmse(model_energy_diff, ref_energy_diff, natoms)
+    model_energy_diff = res2.model_energies - res1.model_energies
+    ref_energy_diff = res2.ref_energies - res1.ref_energies
+    energy_loss = energy_rmse(model_energy_diff, ref_energy_diff, res1.natoms)
 
     # RMSD between relaxed positions of model and reference
     rmsd1 = rmsd(
-        res.model_positions[::2],
-        res.ref_positions[::2],
-        res.cells[::2],
-        res.pbcs[::2],
+        res1.model_positions,
+        res1.ref_positions,
+        res1.cells,
+        res1.pbcs,
+        res1.fixed,
     )
     rmsd2 = rmsd(
-        res.model_positions[1::2],
-        res.ref_positions[1::2],
-        res.cells[1::2],
-        res.pbcs[1::2],
+        res2.model_positions,
+        res2.ref_positions,
+        res2.cells,
+        res2.pbcs,
+        res2.fixed,
     )
     return dict(energy=energy_loss, rmsd=(rmsd1 + rmsd2) / 2)
 
 
 def get_loss_neb(res: Results) -> dict[str, float]:
     """Get loss in test 3: NEB"""
-    assert np.all(res.natoms[::3] == res.natoms[1::3])
-    assert np.all(res.natoms[::3] == res.natoms[2::3])
+    res_i = res[::3]
+    res_ts = res[1::3]
+    res_f = res[2::3]
+    assert np.all(res_i.natoms == res_ts.natoms)
+    assert np.all(res_i.natoms == res_f.natoms)
 
     # NEB images are ordered in triplets as: initial, transition state, final
     # Reaction and activation energy losses
-    model_reac_energies = res.model_energies[2::3] - res.model_energies[::3]
-    model_act_energies = res.model_energies[1::3] - res.model_energies[::3]
-    ref_reac_energies = res.ref_energies[2::3] - res.ref_energies[::3]
-    ref_act_energies = res.ref_energies[1::3] - res.ref_energies[::3]
+    model_reac_energies = res_f.model_energies - res_i.model_energies
+    model_act_energies = res_ts.model_energies - res_i.model_energies
+    ref_reac_energies = res_f.ref_energies - res_i.ref_energies
+    ref_act_energies = res_ts.ref_energies - res_i.ref_energies
     energy_loss_reaction = energy_rmse(
         model_reac_energies, ref_reac_energies, natoms=None
     )
@@ -232,35 +264,42 @@ def get_loss_neb(res: Results) -> dict[str, float]:
 
     # RMSD between initial, transition state, and final positions of model and
     # reference
-    rmsd1 = rmsd(
-        res.model_positions[::3],
-        res.ref_positions[::3],
-        res.cells[::3],
-        res.pbcs[::3],
+    rmsd_i = rmsd(
+        res_i.model_positions,
+        res_i.ref_positions,
+        res_i.cells,
+        res_i.pbcs,
+        res_i.fixed,
     )
-    rmsd2 = rmsd(
-        res.model_positions[1::3],
-        res.ref_positions[1::3],
-        res.cells[1::3],
-        res.pbcs[1::3],
+    rmsd_ts = rmsd(
+        res_ts.model_positions,
+        res_ts.ref_positions,
+        res_ts.cells,
+        res_ts.pbcs,
+        res_ts.fixed,
     )
-    rmsd3 = rmsd(
-        res.model_positions[2::3],
-        res.ref_positions[2::3],
-        res.cells[2::3],
-        res.pbcs[2::3],
+    rmsd_f = rmsd(
+        res_f.model_positions,
+        res_f.ref_positions,
+        res_f.cells,
+        res_f.pbcs,
+        res_f.fixed,
     )
     return dict(
         reaction_energy=energy_loss_reaction,
         activation_energy=energy_loss_activation,
-        rmsd_ends=(rmsd1 + rmsd3) / 2,
-        rmsd_ts=rmsd2,
+        rmsd_ends=(rmsd_i + rmsd_f) / 2,
+        rmsd_ts=rmsd_ts,
     )
 
 
 def get_loss_sp(res: Results) -> dict[str, float]:
     """Get loss in test 4: single point calculations"""
-    energy_loss = energy_rmse(res.model_energies, res.ref_energies, res.natoms)
+    energy_loss = energy_rmse(
+        res.model_energies - res.natoms * res.model_bulk_energy,
+        res.ref_energies - res.natoms * res.ref_bulk_energy,
+        res.natoms,
+    )
     force_loss = force_rmse(res.model_forces, res.ref_forces)
     return dict(energy=energy_loss, force=force_loss)
 

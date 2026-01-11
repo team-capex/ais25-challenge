@@ -48,8 +48,8 @@ Predict the energy difference between different relaxed nanoparticle polymorphs.
 
     In this test, the energies are extensive, i.e. in eV, not eV/atom.
 
-4. *Extrapolation to larger nanoparticles.* Predict the energy and forces of larger nanoparticles up to 10 nm in diameter that share the local motifs of the provided training set.
-    1. $`\mathcal{L} = \mathrm{RMSE_E}(\hat{E}, E)`$
+4. *Extrapolation to larger nanoparticles.* Predict the energy and forces of larger nanoparticles up to 10 nm in diameter that share the local motifs of the provided training set. Energies are referenced to the bulk energy per atom $E_\mathrm{bulk}$, calculated from the equation of state of bulk FCC gold.
+    1. $`\mathcal{L} = \mathrm{RMSE_E}(\hat{E} - N \hat{E}_\mathrm{bulk}, E - N E_\mathrm{bulk})`$
     2. $`\mathcal{L} = \mathrm{RMSE_F}(\hat{F}, F)`$
 
 All relevant structures will be provided in the extended XYZ format. Each task is accompanied by a Python script (will be provided soon) that runs the test and saves the outputs in the expected format. These scripts rely on the Atomic Simulation Environment ([ASE](https://ase-lib.org/))  Python library. To use the scripts, the ML model should interface with ASE through an [ASE Calculator class](https://ase-lib.org/ase/calculators/calculators.html#module-ase.calculators)). For comparable results to the reference data, this might be especially important for tasks 2 and 3 that use specific optimization routines. Note that only energy and force evaluation is required to perform these tasks.

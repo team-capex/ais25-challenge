@@ -24,7 +24,7 @@ Test: neb
   rmsd_ends: 0.040498 Å
   rmsd_ts: 0.040639 Å
 Test: single_point
-  energy: 0.430836 eV/atom
+  energy: 0.170687 eV/atom
   force: 0.069341 eV/Å
 ```
 
@@ -34,6 +34,8 @@ For sanity checks, the logs and trajectories of geometry optimizations and NEBs 
 $ ase gui relax/*.traj
 $ ase gui neb/*climb.traj
 ```
+
+The equation of state calculation for the bulk energy is saved in the folder `./eos/`, comparing the model and DFT energy-volume curves.
 
 It is also possible to change the convergence criteria and number of NEB images when running the tests.
 
