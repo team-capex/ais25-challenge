@@ -5,7 +5,7 @@ with simulated profiles from an atomic structure using the Debye scattering equa
 Usage:
     python scatteringcalculator.py                    # run with defaults
     python scatteringcalculator.py --dataset 1       # use dataset index 1
-    python scatteringcalculator.py --no-plot         # compute Rwp only, no plot
+    python scatteringcalculator.py --no-plot         # compute Rwp and MSE only, no plot
 """
 
 from pathlib import Path
@@ -116,7 +116,7 @@ def calculate_loss(x_exp, x_sim, I_exp, I_sim, loss_type="rwp"):
     I_exp, I_sim : ndarray
         Intensity values for experiment and simulation.
     loss_type : str
-        One of "rwp" (weighted profile R-factor), "mae", "mse".
+        One of "rwp" (weighted profile R-factor) or "mse" (mean squared error).
 
     Returns
     -------
@@ -130,12 +130,10 @@ def calculate_loss(x_exp, x_sim, I_exp, I_sim, loss_type="rwp"):
 
     if loss_type == "rwp":
         loss = np.sqrt(np.sum(diff**2) / np.sum(I_exp**2))
-    elif loss_type == "mae":
-        loss = np.mean(np.abs(diff))
     elif loss_type == "mse":
         loss = np.mean(diff**2)
     else:
-        raise ValueError(f"Invalid loss_type: {loss_type}")
+        raise ValueError(f"Invalid loss_type: {loss_type}. Use 'rwp' or 'mse'.")
 
     return loss, I_sim_interp
 
@@ -194,13 +192,13 @@ def run(
     params : dict, optional
         Scattering parameters; defaults to EXPERIMENT_SCATTERING_PARAMS (match experiment; do not change).
     show_plot : bool
-        If True, show comparison plot; otherwise only print Rwp.
+        If True, show comparison plot; otherwise only print Rwp and MSE.
 
     Returns
     -------
     dict
-        Contains "rwp_Fq", "rwp_Gr", "q_exp", "Fq_exp", "r_exp", "Gr_exp",
-        "q_sim", "Fq_sim", "r_sim", "Gr_sim".
+        Contains "rwp_Fq", "rwp_Gr", "mse_Fq", "mse_Gr", "q_exp", "Fq_exp",
+        "r_exp", "Gr_exp", "q_sim", "Fq_sim", "r_sim", "Gr_sim".
     """
     if params is None:
         params = EXPERIMENT_SCATTERING_PARAMS.copy()
@@ -242,11 +240,15 @@ def run(
     Fq_sim_n = Fq_sim / np.max(Fq_sim)
     Gr_sim_n = Gr_sim / np.max(Gr_sim)
 
-    # Rwp
+    # Rwp and MSE
     rwp_Fq, _ = calculate_loss(q_exp, q_sim, Fq_exp_n, Fq_sim_n, loss_type="rwp")
     rwp_Gr, _ = calculate_loss(r_exp, r_sim, Gr_exp_n, Gr_sim_n, loss_type="rwp")
+    mse_Fq, _ = calculate_loss(q_exp, q_sim, Fq_exp_n, Fq_sim_n, loss_type="mse")
+    mse_Gr, _ = calculate_loss(r_exp, r_sim, Gr_exp_n, Gr_sim_n, loss_type="mse")
     print(f"Rwp F(q): {rwp_Fq:.4f}")
     print(f"Rwp G(r): {rwp_Gr:.4f}")
+    print(f"MSE F(q): {mse_Fq:.6e}")
+    print(f"MSE G(r): {mse_Gr:.6e}")
 
     if show_plot:
         fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
@@ -268,6 +270,8 @@ def run(
     return {
         "rwp_Fq": rwp_Fq,
         "rwp_Gr": rwp_Gr,
+        "mse_Fq": mse_Fq,
+        "mse_Gr": mse_Gr,
         "q_exp": q_exp,
         "Fq_exp": Fq_exp_n,
         "r_exp": r_exp,
@@ -310,7 +314,7 @@ def main():
     parser.add_argument(
         "--no-plot",
         action="store_true",
-        help="Only compute and print Rwp, do not show plot",
+        help="Only compute and print Rwp and MSE, do not show plot",
     )
     args = parser.parse_args()
 
