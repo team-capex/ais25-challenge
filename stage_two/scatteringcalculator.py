@@ -37,8 +37,8 @@ DEFAULT_STRUCTURE_FILE = STRUCTURES_DIR / "structure.xyz"
 
 # Scattering parameters matching the experiment (do not change).
 # See README "Scattering parameters" for full definitions.
-#   qmin, qmax, qstep [Å⁻¹]: q-range and step for F(q); q = 4π sin(θ)/λ.
-#   qdamp [Å⁻¹]: damping in q-space (finite resolution / correlation length).
+#   qmin, qmax, qstep [Å⁻¹]: q-range and step for F(q).
+#   qdamp [Å⁻¹]: instrumental damping in q-space.
 #   rmin, rmax, rstep [Å]: r-range and step for G(r) (pair distribution function).
 #   biso [Å²]: isotropic atomic displacement (Debye–Waller), thermal smearing.
 EXPERIMENT_SCATTERING_PARAMS = {
