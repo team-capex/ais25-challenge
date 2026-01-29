@@ -9,9 +9,9 @@ Train or fine-tune models on a dataset of Au nanoparticles and low Miller-index 
 
 See **[stage_one/README.md](stage_one/README.md)** for instructions, deadlines, tests, and scoring.
 
-## Stage 2 — `two_stage/`
+## Stage 2 — `stage_two/`
 
 **Scattering profile calculation.**  
-Compare experimental X-ray scattering data (F(q) and G(r)) with simulated profiles from atomic structures using the **Debye scattering equation**. The code computes the weighted profile R-factor (Rwp) and can plot experiment vs simulation. Scattering parameters are fixed to match the experiment and must not be changed when comparing against the provided data.
+Compare experimental X-ray scattering data (F(q) and G(r)) with simulated profiles from atomic structures using the **Debye scattering equation**. The code computes the weighted profile R-factor (Rwp) and can plot experimental vs simulated data. In the calculation of the simulated scattering patterns, the scattering parameters are fixed to match the experiment and must not be changed when comparing against the provided experimental data.
 
-See **[two_stage/README.md](two_stage/README.md)** for setup, usage, and references.
+See **[stage_two/README.md](stage_two/README.md)** for setup, usage, and references.

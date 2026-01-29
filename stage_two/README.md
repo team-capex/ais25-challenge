@@ -1,13 +1,13 @@
 # Scattering profile calculation
 
-This project does **scattering profile calculation**: it uses the **Debye scattering equation** to compare **experimental** X-ray scattering data (F(q) and G(r)) with **simulated** profiles from an atomic structure. The script computes the weighted profile R-factor (Rwp) and optionally plots experiment vs simulation.
+This project does **scattering profile calculation**: it uses the **Debye scattering equation** to compare **experimental** X-ray scattering data (F(q) and G(r)) with **simulated** scattering profiles from an atomic structure. The script computes the weighted profile R-factor (Rwp) and optionally plots the provided experimental data vs simulated scattering patterns of a specified atomic structure.
 
-> **Important:** The scattering parameters (q-range, r-range, damping, `biso`, etc.) used in the simulation are **fixed to match the experimental setup**. They are defined once in the code as `EXPERIMENT_SCATTERING_PARAMS` and **must not be changed** when comparing against the provided data. Changing them would make the comparison invalid.
+> **Important:** The scattering parameters used in the simulation are **fixed to match the experimental setup**. They are defined once in the code as `EXPERIMENT_SCATTERING_PARAMS` and **must not be changed** when comparing against the provided data. Changing them would make the comparison invalid.
 
 ## Project structure
 
 ```
-AI4Science/
+stage_two/
 ├── README.md                 # This file
 ├── requirements.txt          # Python dependencies
 ├── scatteringcalculator.py   # Main script
@@ -52,7 +52,7 @@ AI4Science/
 
 ## How to run
 
-From the project root (`AI4Science/`):
+From the project root (`stage_two/`):
 
 ```bash
 python scatteringcalculator.py
