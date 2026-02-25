@@ -1,0 +1,8 @@
+# Scattering profile calculation dependencies
+# Install with uv: uv venv && source .venv/bin/activate && uv pip install -r requirements.txt
+
+numpy>=1.20
+matplotlib>=3.5
+ase>=3.22
+debyecalculator>=0.3
+torch>=1.9
