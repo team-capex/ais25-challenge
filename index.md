@@ -14,16 +14,18 @@ Names and test scores will only be made public in agreement with participants.
 
 ## Stage 2
 
+**New Deadline: May 20th, 2026!**
+
 The top three teams* following Stage 1 will be announced on February 6th, 2026, and qualify for Stage 2, where they will be onboarded on the Danish Center for AI Innovation (DCAI) NVIDIA Superpod Gefion for training/fine-tuning of their model on a new >12.000.000 structure ab initio solid-liquid dataset (VASP, PBE D3) with solvated nanoparticles, Pt, Au, and Cu surfaces, as well as cat- and anions. During the competition, the teams will have access to the dataset before it is publicly released after the competition.
 
 The DCAI Gefion SuperPOD has 1.528 DGX H100 GPUs plus a number of new B300 GPUs, and one of the world’s fastest INFINYBAND network and disk I/O. Compute credits will be provided by the Pioneer Center CAPeX and the Novo Nordisk Foundation (NNF) through grant #NNF25OC0105158 for training and inference on up to 512 H100s, as well as the new B300 GPUs.
 
-The three teams will receive two sets of unpublished experimental synthesis conditions for Au nanoparticles, following the solution-based synthesis procedure described [here](https://doi.org/10.48550/arXiv.2505.13571), and must submit the three most stable atomic structures for each set of synthesis conditions, plus the total scattering and pair distribution function (PDF) (scripts will be provided), before March 20th, 2026. This part of the competition is high risk, and modifications to the scoring metric may be required.
+The three teams will receive two sets of unpublished experimental synthesis conditions for Au nanoparticles, following the solution-based synthesis procedure described [here](https://doi.org/10.48550/arXiv.2505.13571), and must submit the three most stable atomic structures for each set of synthesis conditions, plus the total scattering and pair distribution function (PDF) (scripts will be provided), before May 20th, 2026. This part of the competition is high risk, and modifications to the scoring metric may be required.
 
 ## Winner and prize
 
 The winner will be the team that is able to predict the best goodness-of-fit to the experimental scattering data as described in equation 4 of the [paper](https://doi.org/10.48550/arXiv.2505.13571). The experimentally measured scattering data is revealed after the competition ends.
 
-Prize: On March 27th, 2026, the winner will be announced. The winning team will receive additional compute credits and will be invited to propose a specific nanoparticle structure to be synthesized during autonomous laboratory operation at the MAX IV Synchrotron in Lund.
+Prize: On May 27th, 2026, the winner will be announced. The winning team will receive additional compute credits and will be invited to propose a specific nanoparticle structure to be synthesized during autonomous laboratory operation at the CAPeX lab and when possible at the MAX IV Synchrotron in Lund.
 
 **) To qualify for Stage 2, teams must agree to make their code openly available and participate in a joint scientific publication.*
